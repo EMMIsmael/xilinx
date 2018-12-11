@@ -1,0 +1,167 @@
+fprintf( fid, '#define %sPAR( Param ) DEVICE_LOC_PAR( pd, %s, Param )\n', Devd0, Devd1 );
+fprintf( fid, '#define %sDAT( Param ) DEVICE_LOC_DAT( pd, %s, Param )\n', Devd0, Devd1 );
+fprintf( fid, '#define %s_%-27sN_SLAVE_REGS( %u )\n', Devd1, 'N_SLV_REGS', nslvreg );
+fprintf( fid, '\n' );                                                  
+fprintf( fid, '#define %s_%-27s(  0 )\n', Devd1, 'CTRL_REG'            );
+fprintf( fid, '#define %s_%-27s(  2 )\n', Devd1, 'N_FFT_REG'           );
+fprintf( fid, '#define %s_%-27s(  3 )\n', Devd1, 'N_SYMB_FRAME_REG'    );
+fprintf( fid, '#define %s_%-27s(  4 )\n', Devd1, 'N_FRAME_BLOCK_REG'   );
+fprintf( fid, '\n' );                                                  
+fprintf( fid, '#define %s_%-27s(  1 )\n', Devd1, 'INFO_REG'            );  
+fprintf( fid, '#define %s_%-27s( 32 )\n', Devd1, 'STAT_REG'            );  
+fprintf( fid, '\n' );                                                  
+fprintf( fid, '#define %s_%-27s(    )\n', Devd1,'RX_DATA_CTR_REG'     );  
+fprintf( fid, '#define %s_%-27s(    )\n', Devd1,'RX_SYMB_CTR_REG'     );  
+fprintf( fid, '#define %s_%-27s(    )\n', Devd1,'RX_FRAME_CTR_REG'    );  
+fprintf( fid, '#define %s_%-27s(    )\n', Devd1,'RX_BLOCK_CTR_REG'    );  
+fprintf( fid, '#define %s_%-27s(    )\n', Devd1,'TX_DATA_CTR_REG'     );  
+fprintf( fid, '#define %s_%-27s(    )\n', Devd1,'TX_SYMB_CTR_REG'     );  
+fprintf( fid, '#define %s_%-27s(    )\n', Devd1,'TX_FRAME_CTR_REG'    );  
+fprintf( fid, '#define %s_%-27s(    )\n', Devd1,'TX_BLOCK_CTR_REG'    );  
+fprintf( fid, '\n' );
+fprintf( fid, '// Control register bits\n' );
+fprintf( fid, '#define %s_%-27s( 0x00000001 )\n', Devd1, 'RESET'   );
+fprintf( fid, '#define %s_%-27s( 0x00000002 )\n', Devd1, 'INT_ACK' );
+fprintf( fid, '\n' );
+
+
+
+
+
+
+fprintf( fid, 'static void DumpBRAM( TREmul *pd, u32 addr, u32 nbits, u32 dsel )\n' );
+fprintf( fid, '{\n' );
+fprintf( fid, '    char s[ 2 * SYS_MAX_OBJ_NAME_LEN + 1 ]; strcpy( s, SYSDVC( Name ) );\n' );
+fprintf( fid, '    strcat( s, " BRAM" );\n' );
+fprintf( fid, '\n' );
+fprintf( fid, '    if ( nbits == 0 )\n' );
+fprintf( fid, '        utilScreenDumpData( dsel, DUMP_FMT_HEX,       DUMP_TYP_MEMORY, addr, 4,     0, ( u32 )pd, s );\n' );
+fprintf( fid, '    else if(( nbits >= 8 ) && ( nbits <= 16 ))\n' );
+fprintf( fid, '        utilScreenDumpData( dsel, DUMP_FMT_IQ_SIGNED, DUMP_TYP_MEMORY, addr, nbits, 0, ( u32 )pd, s );\n' );
+fprintf( fid, '    else\n' );
+fprintf( fid, '        cprintf( "Format must be 0 (hex) or 8-16 (decimal Q:I)\n" );\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, '\n' );
+fprintf( fid, 'static u32 ReadPsBRAM( TREmul *pd, u32 addr )\n' );
+fprintf( fid, '{\n' );
+fprintf( fid, '    return( DVCPAR( pBRAM[ addr ] ));\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, 'static void WritePsBRAM( TREmul *pd, u32 addr, u32 data )\n' );
+fprintf( fid, '{\n' );
+fprintf( fid, '    DVCPAR( pBRAM[ addr ] ) = data;\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, 'static void InitPsBRAM( TREmul *pd, u32 addr, u32 count, u32 val )\n' );
+fprintf( fid, '{\n' );
+fprintf( fid, '    for( u32 i = 0; i < count; i++ )\n' );
+fprintf( fid, '    {\n' );
+fprintf( fid, '       DVCPAR( pBRAM[ i + addr ] ) = val;\n' );
+fprintf( fid, '    }\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, 'static void LoadPsBRAM( TREmul *pd )\n' );
+fprintf( fid, '{\n' );
+fprintf( fid, '    u32 EmulBitMask = DVCPAR( PsBRAMSize ) - 1;\n' );
+fprintf( fid, '    for( u32 i = 0; i < DVCPAR( PsBRAMSize ); i++ )\n' );
+fprintf( fid, '    {\n' );
+fprintf( fid, '       u32 u = i & EmulBitMask;\n' );
+fprintf( fid, '       DVCPAR( pBRAM[ i ] ) = u + ( u << 16 );\n' );
+fprintf( fid, '    }\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, '\n' );
+
+
+fprintf( fid, 'static u32 ReadBram( %s *pd, u32 addr )\n', Dvc );
+fprintf( fid, '{\n' );
+fprintf( fid, '    EnterAdmin( pd );\n' );
+fprintf( fid, '    u32 u = hwReadData( SYSDVC( BaseAddr ),\n' );
+fprintf( fid, '                   %s_CTRL_REG << 2, %s_AD_RD_TX_BUF, %s_AD_RD_ACK,\n', Dvcc, Dvcc, Dvcc );
+fprintf( fid, '                   %s_STAT_REG << 2, %s_AD_RD_RDY,\n', Dvcc, Dvcc );
+fprintf( fid, '                   %s_AD_RD_WR_ADDR_REG << 2, addr,\n', Dvcc );
+fprintf( fid, '                   %s_AD_RD_TX_BUF_REG << 2\n', Dvcc );
+fprintf( fid, '                   );\n' );
+fprintf( fid, '    ExitAdmin( pd );\n' );
+fprintf( fid, '    return( u );\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, 'static void WriteBram( %s *pd, u32 addr, u32 data )\n', Dvc );
+fprintf( fid, '{\n' );
+fprintf( fid, '    EnterAdmin( pd );\n' );
+fprintf( fid, '    hwWriteData( SYSDVC( BaseAddr ),\n' );
+fprintf( fid, '                %s_CTRL_REG << 2, %s_AD_WR_RX_BUF,\n', Dvcc, Dvcc );
+fprintf( fid, '                %s_AD_RD_WR_ADDR_REG << 2, addr,\n', Dvcc );
+fprintf( fid, '                %s_AD_WR_DATA_REG << 2, data\n', Dvcc );
+fprintf( fid, '                );\n' );
+fprintf( fid, '    ExitAdmin( pd );\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, 'static void InitBram( %s *pd, u32 addr, u32 count, u32 val )\n', Dvc );
+fprintf( fid, '{\n' );
+fprintf( fid, '    EnterAdmin( pd );\n' );
+fprintf( fid, '    for( int i = 0; i < count; i++ )\n' );
+fprintf( fid, '    {\n' );
+fprintf( fid, '        hwWriteData( SYSDVC( BaseAddr ),\n' );
+fprintf( fid, '                    %s_CTRL_REG << 2, %s_AD_WR_RX_BUF,\n', Dvcc, Dvcc );
+fprintf( fid, '                    %s_AD_RD_WR_ADDR_REG << 2, addr + i,\n', Dvcc );
+fprintf( fid, '                    %s_AD_WR_DATA_REG << 2, val\n', Dvcc );
+fprintf( fid, '                    );\n' );
+fprintf( fid, '    }\n' );
+fprintf( fid, '    ExitAdmin( pd );\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, '//static void LoadBram( %s *pd )\n', Dvc );
+fprintf( fid, '//{\n' );
+fprintf( fid, '//    EnterAdmin( pd );\n' );
+fprintf( fid, '//    for ( int i = 0; i < LENGTH; i++ )\n' );
+fprintf( fid, '//    {\n' );
+fprintf( fid, '//        hwWriteData( SYSDVC( BaseAddr ),\n' );
+fprintf( fid, '//                %s_CTRL_REG << 2, %s_AD_WR_BRAM,\n', Dvcc, Dvcc );
+fprintf( fid, '//                %s_AD_RD_WR_ADDR_REG << 2, i,\n', Dvcc );
+fprintf( fid, '//                %s_AD_WR_DATA_REG << 2, SYSPTR( pBuf[ i ] )\n', Dvcc );
+fprintf( fid, '//        );
+fprintf( fid, '//    }
+fprintf( fid, '//    ExitAdmin( pd );
+fprintf( fid, '//}
+fprintf( fid, '//\n' );
+
+fprintf( fid, 'static u32 ReadBR( u32 addr )\n' );
+fprintf( fid, '{\n' );
+fprintf( fid, '    static %s *pd = NULL;\n', Dvc );\n' );
+fprintf( fid, '    if ( addr & 0x80000000 ) { pd = ( %s * ) ( addr & 0x7FFFFFFF ); }\n', Dvc );\n' );
+fprintf( fid, '    else if ( pd != NULL ) { return ( pd->ReadBram( pd, ( u32 )addr )); }\n' );
+fprintf( fid, '    return( 0 );\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, 'static void WriteBR( u32 addr, u32 data )\n' );
+fprintf( fid, '{\n' );
+fprintf( fid, '    static %s *pd = NULL;\n', Dvc );\n' );
+fprintf( fid, '    if ( addr & 0x80000000 ) { pd = ( %s * )( addr & 0x7FFFFFFF ); }\n', Dvc );\n' );
+fprintf( fid, '    else if ( pd != NULL ) { pd->WriteBram( pd, ( u32 )addr, data ); }\n' );
+fprintf( fid, '}\n' );
+fprintf( fid, '\n' );
+fprintf( fid, '\n' );
+fprintf( fid, 'static u32 TestBram( %s *pd )\n', Dvc );\n' );
+fprintf( fid, '{\n' );
+fprintf( fid, '    char Name[ 2 * SYS_MAX_OBJ_NAME_LEN + 1]; strcpy( Name, SYSDVC( Name ) );\n' );
+fprintf( fid, '    ( void ) ReadBR( ( u32 ) pd | 0x80000000 );\n' );
+fprintf( fid, '    WriteBR( ( u32 ) pd | 0x80000000, 0 );\n' );
+fprintf( fid, '    return ( UtilTestBram( ReadBR, WriteBR, DVCPAR( BramSize ), 0xFFFFFFFF, strcat( Name, " BRAM" ) ));\n' );
+fprintf( fid, '}\n' );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

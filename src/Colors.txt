@@ -1,0 +1,211 @@
+Colors.txt
+ Created on: 17 Nov 2018
+     Author: JULIAN MORTIMER
+
+     classdef Colors
+
+     properties
+       rgbwhite;
+       rgbgrey95;
+       rgbgrey90;
+       rgbgrey85;
+       rgbgrey80;
+       rgbgrey75;
+       rgbgrey70;
+       rgbgrey65;
+       rgbgrey60;
+       rgbgrey55;
+       rgbgrey50;
+       rgbgrey45;
+       rgbgrey40;
+       rgbgrey35;
+       rgbgrey30;
+       rgbgrey25;
+       rgbgrey20;
+       rgbgrey15;
+       rgbgrey10;
+       rgbgrey5;
+       rgbblack;
+
+       rgbred;
+       rgbgreen;
+       rgbblue;
+       rgbyellow;
+       rgbcyan;
+       rgbmagenta;
+       rgborange;
+       rgblime;
+       rgbcyangreen;
+       rgbroyalblue;
+       rgbpurple;
+       rgbrose;
+
+       rgbred;
+       rgbgreen;
+       rgbblue;
+       rgbyellow;
+       rgbcyan;
+       rgbmagenta;
+       rgborange;
+       rgblime;
+       rgbcyangreen;
+       rgbroyalblue;
+       rgbpurple;
+       rgbrose;
+       
+       rbyred;
+       rbyyellow;
+       rbyblue;
+       rbyorange;
+       rbygreen;
+       rbypurple;
+       rbyredorange;
+       rbyyelloworange;
+       rbyyellowgreen;
+       rbybluegreen;
+       rbybluepurple;
+       rbyredpurple;
+    
+    
+    
+    
+    
+    
+    
+    
+        figurecolor;
+        graphcolor;
+        axiscolor;
+        gridcolor;
+        textcolor;
+        plotcolor;
+    end
+    
+    methods
+        function obj = Colors( )
+            
+            obj.rgbwhite        = [ 1.00, 1.00, 1.00 ];
+            obj.rgbgrey95       = [ 0.95, 0.95, 0.95 ];
+            obj.rgbgrey90       = [ 0.90, 0.90, 0.90 ];
+            obj.rgbgrey85       = [ 0.50, 0.50, 0.50 ];
+            obj.rgbgrey80       = [ 0.80, 0.80, 0.80 ];
+            obj.rgbgrey75       = [ 0.50, 0.50, 0.50 ];
+            obj.rgbgrey70       = [ 0.70, 0.70, 0.70 ];
+            obj.rgbgrey65       = [ 0.50, 0.50, 0.50 ];
+            obj.rgbgrey60       = [ 0.60, 0.60, 0.60 ];
+            obj.rgbgrey55       = [ 0.50, 0.50, 0.50 ];
+            obj.rgbgrey50       = [ 0.50, 0.50, 0.50 ];
+            obj.rgbgrey45       = [ 0.50, 0.50, 0.50 ];
+            obj.rgbgrey40       = [ 0.40, 0.40, 0.40 ];
+            obj.rgbgrey35       = [ 0.35, 0.35, 0.35 ];
+            obj.rgbgrey30       = [ 0.30, 0.30, 0.30 ];
+            obj.rgbgrey25       = [ 0.25, 0.25, 0.25 ];
+            obj.rgbgrey20       = [ 0.20, 0.20, 0.20 ];
+            obj.rgbgrey15       = [ 0.15, 0.15, 0.15 ];
+            obj.rgbgrey10       = [ 0.10, 0.10, 0.10 ];
+            obj.rgbgrey5        = [ 0.05, 0.05, 0.05 ];
+            obj.rgbblack        = [ 0.00, 0.00, 0.00 ];
+            
+            obj.rgbred          = [ 1.00, 0.00, 0.00 ];
+            obj.rgbgreen        = [ 0.00, 1.00, 0.00 ];
+            obj.rgbblue         = [ 0.00, 0.00, 1.00 ];
+            obj.rgbyellow       = [ 1.00, 1.00, 0.00 ];
+            obj.rgbcyan         = [ 0.00, 1.00, 1.00 ];
+            obj.rgbmagenta      = [ 1.00, 0.00, 1.00 ];
+            obj.rgborange       = [ 1.00, 0.50, 0.00 ];
+            obj.rgblime         = [ 0.50, 1.00, 0.00 ];
+            obj.rgbcyangreen    = [ 0.00, 1.00, 0.50 ];
+            obj.rgbroyalblue    = [ 0.00, 0.50, 1.00 ];
+            obj.rgbpurple       = [ 0.50, 0.00, 1.00 ];
+            obj.rgbrose         = [ 1.00, 0.50, 0.00 ];
+            
+            
+            
+            obj.rbyred          = hex2color('FE2712');
+            obj.rbyyellow       = hex2color('FEFE33');
+            obj.rbyblue         = hex2color('0247FE');
+            obj.rbyorange       = hex2color('FB9902');
+            obj.rbygreen        = hex2color('B2D732');
+            obj.rbypurple       = hex2color('8601AF');
+            obj.rbyredorange    = hex2color('FC600A');
+            obj.rbyyelloworange = hex2color('FCCC1A');
+            obj.rbyyellowgreen  = hex2color('B2D732');
+            obj.rbybluegreen    = hex2color('347C98');
+            obj.rbybluepurple   = hex2color('4424D6');
+            obj.rbyredpurple    = hex2color('C21460');
+            
+            
+            obj.figurecolor     = [ 0.30, 0.30, 0.40 ];
+            obj.graphcolor      = [ 0.20, 0.20, 0.20 ];
+            obj.axiscolor       = [ 1.00, 1.00, 1.00 ];
+            obj.gridcolor       = [ 1.00, 1.00, 1.00 ];
+            obj.textcolour1     = [ 1.00, 1.00, 1.00 ];
+            obj.textcolour2     = [ 1.00, 1.00, 1.00 ];
+            obj.textcolour3     = [ 1.00, 1.00, 1.00 ];
+            obj.textcolour4     = [ 1.00, 1.00, 1.00 ];
+            obj.plotcolour1     = [ 1.00, 1.00, 1.00 ];
+            obj.plotcolour2     = [ 1.00, 1.00, 1.00 ];
+            obj.plotcolour3     = [ 1.00, 1.00, 1.00 ];
+            obj.plotcolour4     = [ 1.00, 1.00, 1.00 ];
+    
+            obj.haxis.Color           = obj.colors.graphcolor );
+            obj.haxis.XColor          = obj.colors.axiscolor  );
+            obj.haxis.YColor          = obj.colors.axiscolor  );
+            obj.haxis.XGrid           = 'on' );
+            obj.haxis.YGrid           = 'on' );
+            obj.haxis.XMinorgrid      = 'on' );
+            obj.haxis.YMinorgrid      = 'on' );
+            obj.haxis.Clipping        = 'on' );
+            obj.haxis.GridAlpha       = 1.0 );
+            obj.haxis.MinorGridAlpha  = 0.5 );
+            obj.haxis.GridColor       = obj.colors.gridcolor );
+            obj.haxis.MinorGridColor  = obj.colors.gridcolor );
+            obj.haxis.GridLineStyle   = ':' );
+            obj.haxis.FontSize        = obj.fontsize );
+            
+            obj.htext( 1 ),     'Color',     obj.colors.textcolor1 );
+            obj.htext( 1 ),     'FontSize',  obj.fontsize );
+            obj.htext( 1 ),     'Visible',   'on' );
+            obj.htext( 1 ),     'String',    sprintf('%s', obj.title ));
+
+        rbyred          = [ 254, 39 , 18  ];
+        rbyyellow       = [ 254, 254, 51  ];
+        rbyblue         = [ 2  , 71 , 254 ];
+        rbyorange       = [ 251, 153, 2   ];
+        rbygreen        = [ 102, 176, 50  ];
+        rbypurple       = [ 134, 1  , 175 ];
+        rbyredorange    = [ 252, 96 , 10  ];
+        rbyyelloworange = [ 252, 204, 26  ];
+        rbyyellowgreen  = [ 178, 215, 50  ];
+        rbybluegreen    = [ 52 , 124, 152 ];
+        rbybluepurple   = [ 68 , 36 , 214 ];
+        rbyredpurple    = [ 194, 20 , 96  ];
+
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+                
+                
+                end
+                
+                end
+                
+     
