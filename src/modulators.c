@@ -8,7 +8,9 @@ static u32    Demodulate ( Modem *pm, Cplx32 data, double sf );
 void  InitModem (
         Modem *pd,
         ModType ModType,
-        u32   *pLUT,
+        u32   *pLUTf,
+        u32   *pLUTg,
+        u32   *pLUTh,
         HwModulator   *pHwModulator,
         HwDemodulator *pHwDemodulator,
         void  (* CalcDmodTF     ) ( Modem *pd, u32 bit ),
@@ -24,99 +26,99 @@ static u32 constQPSK[4] = {
 		0x80010000
 };
 
-static u32 const4QAM[ 4 ] = {
-		0x5A82A57E,
-		0xA57EA57E,
-		0x5A825A82,
-		0xA57E5A82
+static u32 const4QAM[ 4 ] = { //[imag,real] ToDo: Table Only Valid for 1024-FFT
+		0x09000900,
+		0xF7000900,
+		0x0900F700,
+		0xF700F700
 };
 
 
-static u32 const16QAM[ 16 ] = {
-		0x5A81A57F,
-		0x1E2BA57F,
-		0xA57FA57F,
-		0xE1D5A57F,
-		0x5A81E1D5,
-		0x1E2BE1D5,
-		0xA57FE1D5,
-		0xE1D5E1D5,
-		0x5A815A81,
-		0x1E2B5A81,
-		0xA57F5A81,
-		0xE1D55A81,
-		0x5A811E2B,
-		0x1E2B1E2B,
-		0xA57F1E2B,
-		0xE1D51E2B
+static u32 const16QAM[ 16 ] = {//[imag,real] ToDo: Table Only Valid for 1024-FFT
+        0x03000300,
+        0x09000300,
+        0xFD000300,
+        0xF7000300,
+        0x03000900,
+        0x09000900,
+        0xFD000900,
+        0xF7000900,
+        0x0300FD00,
+        0x0900FD00,
+        0xFD00FD00,
+        0xF700FD00,
+        0x0300F700,
+        0x0900F700,
+        0xFD00F700,
+        0xF700F700,
 };
 
 
-static u32 const64QAM[ 64 ] = {
-		0x5A82A57E,
-		0x40A6A57E,
-		0x0CEEA57E,
-		0x26CAA57E,
-		0xA57EA57E,
-		0xBF5AA57E,
-		0xF312A57E,
-		0xD936A57E,
-		0x5A82BF5A,
-		0x40A6BF5A,
-		0x0CEEBF5A,
-		0x26CABF5A,
-		0xA57EBF5A,
-		0xBF5ABF5A,
-		0xF312BF5A,
-		0xD936BF5A,
-		0x5A82F312,
-		0x40A6F312,
-		0x0CEEF312,
-		0x26CAF312,
-		0xA57EF312,
-		0xBF5AF312,
-		0xF312F312,
-		0xD936F312,
-		0x5A82D936,
-		0x40A6D936,
-		0x0CEED936,
-		0x26CAD936,
-		0xA57ED936,
-		0xBF5AD936,
-		0xF312D936,
-		0xD936D936,
-		0x5A825A82,
-		0x40A65A82,
-		0x0CEE5A82,
-		0x26CA5A82,
-		0xA57E5A82,
-		0xBF5A5A82,
-		0xF3125A82,
-		0xD9365A82,
-		0x5A8240A6,
-		0x40A640A6,
-		0x0CEE40A6,
-		0x26CA40A6,
-		0xA57E40A6,
-		0xBF5A40A6,
-		0xF31240A6,
-		0xD93640A6,
-		0x5A820CEE,
-		0x40A60CEE,
-		0x0CEE0CEE,
-		0x26CA0CEE,
-		0xA57E0CEE,
-		0xBF5A0CEE,
-		0xF3120CEE,
-		0xD9360CEE,
-		0x5A8226CA,
-		0x40A626CA,
-		0x0CEE26CA,
-		0x26CA26CA,
-		0xA57E26CA,
-		0xBF5A26CA,
-		0xF31226CA,
-		0xD93626CA
+static u32 const64QAM[ 64 ] = {//[imag,real] ToDo: Table Only Valid for 1024-FFT
+        0x01400140,
+        0x03C00140,
+        0x08C00140,
+        0x06400140,
+        0xFEC00140,
+        0xFC400140,
+        0xF7400140,
+        0xF9C00140,
+        0x014003C0,
+        0x03C003C0,
+        0x08C003C0,
+        0x064003C0,
+        0xFEC003C0,
+        0xFC4003C0,
+        0xF74003C0,
+        0xF9C003C0,
+        0x014008C0,
+        0x03C008C0,
+        0x08C008C0,
+        0x064008C0,
+        0xFEC008C0,
+        0xFC4008C0,
+        0xF74008C0,
+        0xF9C008C0,
+        0x01400640,
+        0x03C00640,
+        0x08C00640,
+        0x06400640,
+        0xFEC00640,
+        0xFC400640,
+        0xF7400640,
+        0xF9C00640,
+        0x0140FEC0,
+        0x03C0FEC0,
+        0x08C0FEC0,
+        0x0640FEC0,
+        0xFEC0FEC0,
+        0xFC40FEC0,
+        0xF740FEC0,
+        0xF9C0FEC0,
+        0x0140FC40,
+        0x03C0FC40,
+        0x08C0FC40,
+        0x0640FC40,
+        0xFEC0FC40,
+        0xFC40FC40,
+        0xF740FC40,
+        0xF9C0FC40,
+        0x0140F740,
+        0x03C0F740,
+        0x08C0F740,
+        0x0640F740,
+        0xFEC0F740,
+        0xFC40F740,
+        0xF740F740,
+        0xF9C0F740,
+        0x0140F9C0,
+        0x03C0F9C0,
+        0x08C0F9C0,
+        0x0640F9C0,
+        0xFEC0F9C0,
+        0xFC40F9C0,
+        0xF740F9C0,
+        0xF9C0F9C0
 };
 
 
@@ -138,14 +140,14 @@ static DmodTFDesc tfDesc64QAM[ 3 ] = {
 };
 
 
-static Modem modQPSK   = { "QPSK  ", MOD_QPSK , DMOD_MODE_DATA, 2, 4, 12, 12, 0x03, constQPSK , tfDesc4QAM,  NULL, NULL, NULL, Modulate, Demodulate, NULL, NULL, NULL, InitModem };
-static Modem mod4QAM   = { "4-QAM ", MOD_4QAM , DMOD_MODE_DATA, 2, 4, 12, 12, 0x03, const4QAM , tfDesc4QAM,  NULL, NULL, NULL, Modulate, Demodulate, NULL, NULL, NULL, InitModem };
-static Modem mod16QAM  = { "16-QAM", MOD_16QAM, DMOD_MODE_DATA, 4, 4, 12, 12, 0x0f, const16QAM, tfDesc16QAM, NULL, NULL, NULL, Modulate, Demodulate, NULL, NULL, NULL, InitModem };
-static Modem mod64QAM  = { "64-QAM", MOD_16QAM, DMOD_MODE_DATA, 6, 4, 12, 12, 0x3f, const64QAM, tfDesc64QAM, NULL, NULL, NULL, Modulate, Demodulate, NULL, NULL, NULL, InitModem };
+static Modem modQPSK   = { "QPSK  ", MOD_QPSK , DMOD_MODE_DATA, 2, 4, 12, 12, 0x03, constQPSK , tfDesc4QAM,  NULL, NULL, NULL, NULL, NULL, Modulate, Demodulate, NULL, NULL, NULL, InitModem };
+static Modem mod4QAM   = { "4-QAM ", MOD_4QAM , DMOD_MODE_DATA, 2, 4, 12, 12, 0x03, const4QAM , tfDesc4QAM,  NULL, NULL, NULL, NULL, NULL, Modulate, Demodulate, NULL, NULL, NULL, InitModem };
+static Modem mod16QAM  = { "16-QAM", MOD_16QAM, DMOD_MODE_DATA, 4, 4, 12, 12, 0x0f, const16QAM, tfDesc16QAM, NULL, NULL, NULL, NULL, NULL, Modulate, Demodulate, NULL, NULL, NULL, InitModem };
+static Modem mod64QAM  = { "64-QAM", MOD_64QAM, DMOD_MODE_DATA, 6, 4, 12, 12, 0x3f, const64QAM, tfDesc64QAM, NULL, NULL, NULL, NULL, NULL, Modulate, Demodulate, NULL, NULL, NULL, InitModem };
 
-Modem UtilModem        = { ""      , MOD_QPSK ,              0, 0, 0,  0,  0,    0,       NULL,        NULL, NULL, NULL, NULL,     NULL,       NULL, NULL, NULL, NULL, InitModem };
-Modem TxModem          = { ""      , MOD_QPSK ,              0, 0, 0,  0,  0,    0,       NULL,        NULL, NULL, NULL, NULL,     NULL,       NULL, NULL, NULL, NULL, InitModem };
-Modem RxModem          = { ""      , MOD_QPSK ,              0, 0, 0,  0,  0,    0,       NULL,        NULL, NULL, NULL, NULL,     NULL,       NULL, NULL, NULL, NULL, InitModem };
+Modem UtilModem        = { ""      , MOD_QPSK ,              0, 0, 0,  0,  0,    0,       NULL,        NULL, NULL, NULL, NULL, NULL, NULL,     NULL,       NULL, NULL, NULL, NULL, InitModem };
+Modem TxModem          = { ""      , MOD_QPSK ,              0, 0, 0,  0,  0,    0,       NULL,        NULL, NULL, NULL, NULL, NULL, NULL,     NULL,       NULL, NULL, NULL, NULL, InitModem };
+Modem RxModem          = { ""      , MOD_QPSK ,              0, 0, 0,  0,  0,    0,       NULL,        NULL, NULL, NULL, NULL, NULL, NULL,     NULL,       NULL, NULL, NULL, NULL, InitModem };
 
 static Modem *modems[4] =
 {
@@ -159,8 +161,10 @@ static Modem *modems[4] =
 // Modulate, dividing by sf, which will be rounded up to a power of two
 static Cplx32 Modulate( Modem *pm, u32 data, double sf )
 {
-	u32 idx = data & pm->IdxMask;
-	return( ScaleCplx32( U32toCplx32( pm->pConstellation[ idx ] ), sf ));
+	//u32 idx = data & pm->IdxMask;
+	//return( ScaleCplx32( U32toCplx32( pm->pConstellation[ idx ] ), sf ));
+	u32 idx = pm->pConstellation [(data & pm->IdxMask)];
+	return( ScaleCplx32( U32toCplx32( idx ), sf ));
 }
 
 // Demodulate, must be exact. Redefine according to scheme used
@@ -186,7 +190,9 @@ const char *GetModemName( ModType m )
 void  InitModem (
         Modem   *pd,
         ModType ModType,
-        u32     *pLUT,
+        u32     *pLUTf,
+        u32     *pLUTg,
+        u32     *pLUTh,
         HwModulator   *pHwModulator,
         HwDemodulator *pHwDemodulator,
         void    (* CalcDmodTF     ) ( Modem *pd, u32 bit ),
@@ -196,7 +202,9 @@ void  InitModem (
 {
     Modem *pMod = GetModem( ModType );
     *pd = *pMod;
-    pd->pLUT            = pLUT;
+    pd->pLUTf           = pLUTf;
+    pd->pLUTg           = pLUTg;
+    pd->pLUTh           = pLUTh;
     pd->pHwModulator    = pHwModulator;
     pd->pHwDemodulator  = pHwDemodulator;
     pd->CalcDmodTF      = CalcDmodTF;

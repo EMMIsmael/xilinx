@@ -415,9 +415,19 @@ void mainDumpRxPrsBPASlvReg( shell *psh );
 void mainDumpRxPrsBPA( shell *psh );
 void mainResetRxPrsBPA( shell *psh );
 void mainRxPrsBPACalcDelta( shell *psh );
+void mainRxPrsBPACalcDelta2( shell *psh );
 
 void mainRxPrsBPADumpCorSymbFd( shell *psh );
 void mainRxPrsBPADumpCorSymbTd( shell *psh );
+
+void mainRxDataBPADumpCorSymbFd( shell *psh );
+void mainRxDataBPADumpCorSymbTd( shell *psh );
+
+
+void mainRxDataSymbolDumpRawFd( shell *psh );
+void mainRxDataSymbolDumpFCFd( shell *psh );
+void mainRxDataSymbolDumpFTCFd( shell *psh );
+
 
 //===========================================
 //////// End of script-generated code ///////
@@ -804,9 +814,16 @@ shellCommandDef mainCmdDef[ ] = {
     { "BPA"  , "BPADmp"     ,  0, "                                        Dump  RxPrsBPA State"                 , mainDumpRxPrsBPA                     },
     { "BPA"  , "BPARst"     ,  0, "                                        Reset RxPrsBPA"                       , mainResetRxPrsBPA                    },
     { "BPA"  , "BPADelta"   ,  0, "                                        RxPrsBPA Calc Deltas"                 , mainRxPrsBPACalcDelta                },
+    { "BPA"  , "BPADelta2"  ,  0, "                                        RxPrsBPA Calc Deltas, 2 pass CIR"     , mainRxPrsBPACalcDelta2               },
     { "BPA"  , "BPAdCSFd"   ,  0, "                                        RxPrsBPA Dump Corr Symb Freq Dom"     , mainRxPrsBPADumpCorSymbFd            },
     { "BPA"  , "BPAdCSTd"   ,  0, "                                        RxPrsBPA Dump Corr Symb Time Dom"     , mainRxPrsBPADumpCorSymbTd            },
+    { "BPA"  , "BPAdatFd"   ,  0, "                                        RxData BPA Dump Corr Symb Freq Dom"   , mainRxDataBPADumpCorSymbFd           },
+    { "BPA"  , "BPAdatTd"   ,  0, "                                        RxDataBPA Dump Corr Symb Time Dom"    , mainRxDataBPADumpCorSymbTd           },
     { "BPA"  , "PrsBPA"     ,  0, "                                        Enter BPA Shell"                      , mainPrsBPAShell                      },
+    { "BPA"  , ""           ,  0, "",                                                                                                              NULL },
+    { "BPA"  , "DSRSFd"     ,  0, "                                        dump Data Symbol raw FD"              , mainRxDataSymbolDumpRawFd                      },
+    { "BPA"  , "DSCFFd"     ,  0, "                                        dump Data Symbol freq corr FD"        , mainRxDataSymbolDumpFCFd                      },
+    { "BPA"  , "DSCFTSFd"   ,  0, "                                        dump Data Symbol freq and time FD"    , mainRxDataSymbolDumpFTCFd                      },
     { "BPA"  , ""           ,  0, "",                                                                                                              NULL },
 //===========================================
 //////// End of script-generated code ///////
@@ -837,7 +854,6 @@ shellCommandDef mainCmdDef[ ] = {
 
 
 
-
 int main()
 {
 	Xil_ICacheEnable();
@@ -864,8 +880,8 @@ int main()
 	( void ) ad9364_Init_EMM( DATA_SEL_DMA, FS_SEL_61_44_MHz, 1 );
 //	( void ) pause("\nPaused - hit any key");
 
-	( void ) shellConsole( &mainShell, mainCmdDef, "main shell >", "v 0; loop 10; echo test\\_%l\\n; runtest 0 6 0; wait 0.1; endl; v 1; cirdelta; bpadelta;", 1000 );
-
+	//( void ) shellConsole( &mainShell, mainCmdDef, "main shell >", "v 0; loop 10; echo test\\_%l\\n; runtest 0 6 1; wait 0.1; endl; v 1; cirdelta; bpadelta;", 1000 );
+	( void ) shellConsole( &mainShell, mainCmdDef, "main shell >", "v 0; loop 3; echo test\\_%l\\n; runtest 0 6 0; wait 0.1; cirdelta;bpadelta;endl; ", 1000 );
 	cprintf( "---Exiting main---\n\r" );
 	Xil_DCacheDisable();
 	Xil_ICacheDisable();
@@ -1072,7 +1088,9 @@ void mainSysReset( shell *psh )
     DVC_RESET( pEMMSysCtrl->pRxNsdB00AXISink );
     DVC_RESET( pEMMSysCtrl->pRxNsdB01AXISink );
     DVC_RESET( pEMMSysCtrl->pRxNsdB15AXISink );
+#ifdef verbose
 	cprintf( "All Devices Reset\n" );
+#endif
 }
 
 /************************************************************
@@ -2771,15 +2789,47 @@ void mainRxPrsBPACalcDelta( shell *psh )
     DVC_FUNC( pEMMSysCtrl->pRxPrsBPA, CalcDeltas );
 }
 
+void mainRxPrsBPACalcDelta2( shell *psh )
+{
+    DVC_FUNC( pEMMSysCtrl->pRxPrsCIR, Calc );
+    DVC_FUNC( pEMMSysCtrl->pRxPrsCIR, Recalc );
+    DVC_FUNC( pEMMSysCtrl->pRxPrsBPA, CalcDeltas );
+}
+
 void mainRxPrsBPADumpCorSymbFd( shell *psh )
 {
     DVC_FUNC( pEMMSysCtrl->pRxPrsBPA, DumpCorrSymbFd );
+}
+void mainRxDataBPADumpCorSymbFd( shell *psh )
+{
+    DVC_FUNC( pEMMSysCtrl->pRxPrsBPA, DumpCorrDataSymbFd );
+}
+void mainRxDataBPADumpCorSymbTd( shell *psh )
+{
+    DVC_FUNC( pEMMSysCtrl->pRxPrsBPA, DumpCorrDataSymbTd );
 }
 
 void mainRxPrsBPADumpCorSymbTd( shell *psh )
 {
     DVC_FUNC( pEMMSysCtrl->pRxPrsBPA, DumpCorrSymbTd );
 }
+
+void mainRxDataSymbolDumpRawFd( shell *psh )
+{
+    DVC_FUNC( pEMMSysCtrl->pRxPrsBPA, RxDataSymbolDumpRawFd );
+}
+
+void mainRxDataSymbolDumpFCFd( shell *psh )
+{
+    DVC_FUNC( pEMMSysCtrl->pRxPrsBPA, RxDataSymbolDumpFCFd );
+}
+
+void mainRxDataSymbolDumpFTCFd( shell *psh )
+{
+    DVC_FUNC( pEMMSysCtrl->pRxPrsBPA, RxDataSymbolDumpFTCFd );
+}
+
+
 
 //===========================================
 //////// End of script-generated code ///////

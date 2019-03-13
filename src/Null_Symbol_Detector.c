@@ -756,15 +756,14 @@ static void MkFrqRef( NSDet *pd )
 
 static void MkTSBuf( NSDet *pd )
 {
-
+    u32 nFFT = SYSPAR(nFFT);
+    u32 *pbuf;
 	for ( int ntsymb = 0; ntsymb < SYS_N_TSYMB_MAX; ntsymb++ ) {
-		for( int i = 0; i < SYS_MAX_CARRIERS; i++ ) {
-			cplx s =  ccosh( I * 2 * M_PI * ( double ) i * DVCPAR( TsFreq[ ntsymb ] ) / NSDET_N_TONE );
-			s32  re = ( s32 ) ( creal( s ) * SYS_RF_DAC_MAX );
-			s32  im = ( s32 ) ( cimag( s ) * SYS_RF_DAC_MAX );
-			SYSPTR( pTsBuf[ ntsymb * SYS_MAX_CARRIERS + i ] ) = ( *( u32 *) &re & 0x0000ffff ) | ( *( u32 *) &im << 16 );
-		}
-	}
+	    pbuf = CopyPRSymb ( nFFT, pbuf, 1.0 / 4.0 );
+	    for( int i = 0; i < SYS_MAX_CARRIERS; i++ ) {
+	        SYSPTR( pTsBuf[ ntsymb * SYS_MAX_CARRIERS + i ] ) = pbuf [ i % 1024 ];
+	    }
+    }
 
     for( int nsymb = 0; nsymb < SYSPAR( nSymbNSD ); nsymb++ ) {
 	    int sgn = 1.0;

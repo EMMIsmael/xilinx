@@ -103,6 +103,7 @@
 #define COPY( src, dest, n ) do { for ( int i = 0; i < n; i++ ) dest [ i ] = src [ i ]; } while ( 0 )
 
 
+#define SIZE( X, type ) ( ( u32 ) sizeof( X ) / sizeof( type ) )
 
 #define SNMBR(x) (( x ) == 1 ? "" : "s" )
 

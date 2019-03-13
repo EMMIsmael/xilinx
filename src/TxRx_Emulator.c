@@ -225,19 +225,19 @@ static void DumpLUT( TREmul *pd, u32 addr, u32 nbits, dmpSelector dsel )
 
 static u32 ReadPsLUT( TREmul *pd, u32 addr )
 {
-    return( DVCPAR( pLUT[ addr ] ));
+    return( DVCPAR( pLUTf[ addr ] ));
 }
 
 static void WritePsLUT( TREmul *pd, u32 addr, u32 data )
 {
-    DVCPAR( pLUT[ addr ] ) = data;
+    DVCPAR( pLUTf[ addr ] ) = data;
 }
 
 static void InitPsLUT( TREmul *pd, u32 addr, u32 count, u32 val )
 {
 	for( u32 i = 0; i < count; i++ )
 	{
-       DVCPAR( pLUT[ i + addr ] ) = val;
+       DVCPAR( pLUTf[ i + addr ] ) = val;
 	}
 }
 
@@ -247,7 +247,7 @@ static void LoadPsLUT( TREmul *pd )
 	for( u32 i = 0; i < DVCPAR( PsLUTSize ); i++ )
 	{
 	   u32 u = i & EmulBitMask;
-       DVCPAR( pLUT[ i ] ) = u + ( u << 12 );
+       DVCPAR( pLUTf[ i ] ) = u + ( u << 12 );
 	}
 }
 
@@ -300,7 +300,7 @@ static void LoadHwLUT( TREmul *pd )
 	    hwWriteData( SYSDVC( BaseAddr ),
 	        TREMUL_CTRL_REG << 2, TREMUL_AD_WR_LUT,
 	        TREMUL_AD_RD_WR_ADDR_REG << 2, i,
-	        TREMUL_AD_WR_DATA_REG << 2, DVCPAR( pLUT[ i ] ));
+	        TREMUL_AD_WR_DATA_REG << 2, DVCPAR( pLUTf[ i ] ));
 	}
     ExitAdmin( pd );
 }

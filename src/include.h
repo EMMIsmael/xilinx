@@ -59,9 +59,9 @@
 #include "TxRx_Emulator.h"
 #include "TxRxEmulSw.h"
 #include "Null_Symbol_Detector.h"
+#include "SystemControl.h"
 #include "PRS_CIR.h"
 #include "PRS_BPA.h"
-#include "SystemControl.h"
 #include "SysDevice.h"
 #include "Slv_Reg.h"
 

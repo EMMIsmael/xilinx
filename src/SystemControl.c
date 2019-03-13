@@ -233,7 +233,7 @@ SysDesc EMMSysDesc = {
         3,             // u32      nSymbAGC;
         1,             // u32      nSymbNSD;
         1,             // u32      nSymbPRS;
-        0,             // u32      nSymbData;
+        50,             // u32      nSymbData;
         10,            // u32      nFrameBlock;
         2,             // u32      TxRxFreq;
         75,            // u32      BWPercent;
@@ -457,6 +457,11 @@ PrsDesc RxPrsDesc = {
     0.0,                         // double alpha;
     0.0,                         // double beta;
     0.0,                         // double theta0;
+    0.0,                         // double lastTheta;
+    0.0,                         // double dataAlpha;
+    0.0,                         // double dataBeta;
+    0.0,                         // double fineDeltaf;
+    0.0,                         // double fineDeltat;
 //    { 1.29, 1.34, 1.32, 1.29 },  // double KFF[ SYS_N_CARRIER_CFG ];
     { 1.00, 1.00, 1.00, 1.00 },  // double KFF[ SYS_N_CARRIER_CFG ];
     { 0.00, 0.00, 0.00, 0.00 },  // double KTF[ SYS_N_CARRIER_CFG ];
@@ -652,7 +657,9 @@ void InitPLSystem ( SysCtrl *ps )
     DEVICE_INIT( ps, pd, pp, AXISink   , RxNsdA15AXISink        , RxNsdA15AXISink         , RX_NSD_A15_AXISINK     );
     DEVICE_INIT( ps, pd, pp, PrsCIR    , RxPrsCIR               , RxPrs                   , RX_PRS_CIR             );
     DEVICE_INIT( ps, pd, pp, PrsBPA    , RxPrsBPA               , RxPrs                   , RX_PRS_BPA             );
+#ifdef verbose
     cprintf ( "\n" );
+#endif
 }
 
 
@@ -669,42 +676,39 @@ const char QM64Mod [ ] = "64-QAM";
 const char *Modstrs [ 4 ] = { QPSKMod, QAM4Mod, QM16Mod, QM64Mod };
 
 
-
-
-
 // create a frame of data
 static void CalcTxSourceData ( SysDesc *pdsc, AXISource *psrc, u32 *pbuf )
 {
-//    u32 carrierMargin = pdsc->nFFT / 2 * ( 100 - pdsc->BWPercent ) / 100;
-//    u32 cLimLo = pdsc->nFFT / 2 - carrierMargin;
-//    u32 cLimHi = pdsc->nFFT / 2 + carrierMargin;
-//
-//    Modem *pMod = GetModem ( pdsc->ModType );
-    PRNG32 prng = { 12345678, 0, prng32s };
-    PRNG32 *png = &prng;
-    png->prng ( png, true );
+    u32 carrierMargin = pdsc->nFFT / 2 * ( 100 - pdsc->BWPercent ) / 100;
+    u32 cLimLo = pdsc->nFFT / 2 - carrierMargin;
+    u32 cLimHi = pdsc->nFFT / 2 + carrierMargin;
 
+    u32 A_RND = 22695477;
+    u32 C_RND = 1;
+    u32 ACC = 0;
+    u32 mod = 4;
+    Modem *pMod = GetModem ( pdsc->ModType );
+    if (pdsc->ModType == MOD_16QAM) {
+        mod = 16;
+    } else if (pdsc->ModType == MOD_64QAM) {
+        mod = 64;
+    }
     for ( int nPrsSymb = 0; nPrsSymb < pdsc->nSymbPRS; nPrsSymb++ ) {
         pbuf = CopyPRSymb ( pdsc->nFFT, pbuf, 1.0 / 4.0 );
-        //pbuf = CopyToneFd1024( pbuf );
     }
-
     for ( u32 nSymb = 0; nSymb < pdsc->nSymbData; nSymb++ ) {
-
-//        pbuf = CopyToneFd1024( pbuf, 1.0 * 1.0 );
-        pbuf = CopyToneConstSymb( pdsc->nFFT, pbuf, 1.0 / 16.0 );
-
-//        for ( u32 nCarrier = 0; nCarrier < pdsc->nFFT; nCarrier++ ) {
-//            if ( ( nCarrier <= cLimLo || nCarrier >= cLimHi ) && nCarrier > 0 ) {
-//
-//                 Cplx32 z = pMod->Modulate ( pMod, png->prng ( png, false ), DATA_MOD_SCALE );
-//                *pbuf++ = Cplx32toU32 ( z );
-//            }
-//            else
-//            {
-//                *pbuf++ = 0;
-//            }
-//        }
+       ACC = nSymb*nSymb;
+       for ( u32 nCarrier = 0; nCarrier < pdsc->nFFT; nCarrier++ ) {
+            if ( ( nCarrier <= cLimLo || nCarrier >= cLimHi ) && nCarrier > 0 ) {
+                 ACC = ACC*A_RND + C_RND;
+                 Cplx32 z = pMod->Modulate ( pMod, ( ACC>>16 ) % mod, 1 );
+                 *pbuf++ = Cplx32toU32 ( z );
+            }
+            else
+            {
+                *pbuf++ = 0;
+            }
+        }
     }
 }
 
@@ -718,26 +722,34 @@ static void AXISourceStart ( AXISource *pd, u32 TxMode, u32 addr, u32 blksize )
         pd->StartContin ( pd );
     else
         pd->Start1Shot ( pd );
+#ifdef verbose
     cprintf( "\n%s started.", SYSDVC( Name ) );
-}
+#endif
+    }
 
 static void TSInjStart ( TSInj *pd )
 {
     pd->LoadTsBuf( pd );
     pd->Start ( pd );
+#ifdef verbose
     cprintf( "\n%s started.", SYSDVC( Name ) );
+#endif
 }
 
 static void TREmulSwStart ( TREmulSw *pd, u32 SelEmul )
 {
     pd->SelChan ( pd, SelEmul );
+#ifdef verbose
     cprintf( "\n%s started.", SYSDVC( Name ) );
+#endif
 }
 
 static void TREmulStart ( TREmul *pd )
 {
     pd->Start ( pd );
+#ifdef verbose
     cprintf( "\n%s started.", SYSDVC( Name ) );
+#endif
 }
 
 static void NSDetStart ( NSDet *pd, u32 tstmode, double rmean )
@@ -746,7 +758,9 @@ static void NSDetStart ( NSDet *pd, u32 tstmode, double rmean )
     pd->SetRNoise( pd, rmean );
     pd->SetDbgTready( pd, true );
     pd->Start( pd );
+#ifdef verbose
     cprintf( "\n%s started.", SYSDVC( Name ) );
+#endif
 }
 
 static void AXISinkStart ( AXISink *pd, u32 rxmode, u32 addr, u32 blksize )
@@ -757,7 +771,9 @@ static void AXISinkStart ( AXISink *pd, u32 rxmode, u32 addr, u32 blksize )
         pd->StartContin ( pd );
     else
     pd->Start1Shot ( pd );
+#ifdef verbose
     cprintf( "\n%s started.", SYSDVC( Name ) );
+#endif
 }
 
 static void PrsCIRStart( PrsCIR *pd )
@@ -857,11 +873,13 @@ void SysRunTest( SysCtrl *ps, u32 selEmulChan, double rmean, u32 srcmode )
     SysDesc *pd = ps->pSysDesc;
     SysPtrs *pp = ps->pSysPtrs;
     u32 sel = ( selEmulChan == SEL_EMUL_WIRE ) ? SEL_EMUL_WIRE : SEL_EMUL_RF_CHAN;
+#ifdef verbose
     if ( selEmulChan == SEL_EMUL_WIRE ) {
         cprintf( "\nWire channel selected." );
     } else {
         cprintf( "\nRF channel selected." );
     }
+#endif
     //( void ) ad9364_Init_EMM( DATA_SEL_DMA, pd->TxRxFreq, 1 );
     CalcTxSourceData ( pd, ps->pTxAXISource, pp->pTxSourceBuf );
     InitPLSystem   ( ps );
@@ -888,13 +906,16 @@ void SysRunTest( SysCtrl *ps, u32 selEmulChan, double rmean, u32 srcmode )
         AXISourceStart ( ps->pTxAXISource, AXISOURCE_ONESHOT, 0, pd->nFFT * ( pd->nSymbData + pd->nSymbPRS ) );
     }
     TSInjStart     ( ps->pTxTSInj );
+#ifdef verbose
     cprintf( "\n\n" );
+#endif
 }
+
 
 void StopPLSystem( SysCtrl *ps )
 {
     ps->pTxAXISource->Stop( ps->pTxAXISource );
-    //WaitSec( 1.0 );
+    WaitSec( 1.0 );
     ps->pTxTSInj->Stop            ( ps->pTxTSInj );
     ps->pRFChanTREmul->Stop       ( ps->pRFChanTREmul );
     ps->pRxNSDet->Stop            ( ps->pRxNSDet );
@@ -909,7 +930,9 @@ void StopPLSystem( SysCtrl *ps )
     ps->pRxNsdA00AXISink->Stop    ( ps->pRxNsdA00AXISink );
     ps->pRxNsdA01AXISink->Stop    ( ps->pRxNsdA01AXISink );
     ps->pRxNsdA15AXISink->Stop    ( ps->pRxNsdA15AXISink );
+#ifdef verbose
     cprintf( "Test halted.\n" );
+#endif
 }
 
 void ChkTSITxFreq( void )

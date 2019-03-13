@@ -22,6 +22,9 @@ u32  UtilTestBram64 ( u64 ( * Read )( u32 addr ), void ( * Write )( u32 addr, u6
 void WaitSec( double tsec );
 u32  RMeantoRNoise( double rmean, u32 nBits );
 
+void *memsetd( void *p, double v, u32 n );
+void *memsetc( void *p, cplx   v, u32 n );
+
 double MeanXd    ( double *px, u32 n );
 double SigmaXd   ( double *px, u32 n );
 double SigmaX2d  ( double *px, u32 n );
@@ -186,9 +189,30 @@ void ifft( cplx dest[], cplx src[], int n )
 }
 
 //============================================
+// Memory Utils
+//============================================
+void *memsetd( void *p, double v, u32 n )
+{
+    double *pp = ( double* ) p;
+    for ( u32 i = 0; i < n; i++ ) {
+        pp [ i ] = v;
+    }
+    return( p );
+}
+
+void *memsetc( void *p, cplx   v, u32 n )
+{
+    cplx *pp = ( cplx* ) p;
+    for ( u32 i = 0; i < n; i++ ) {
+        pp [ i ] = v;
+    }
+    return( p );
+}
+
+
+//============================================
 // Stats
 //============================================
-
 double MeanXd( double *px, u32 n ) {
     double s = SigmaXd( px, n );
     return ( s / ( double ) n );

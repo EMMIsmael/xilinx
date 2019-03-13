@@ -572,7 +572,9 @@ void shellEcho( shell *ps )
 void shellWait( shell *ps )
 {
     double d = ps->darg[ 0 ];
+#ifdef verbose
     cprintf( "\nWaiting %0.3f s\n", d );
+#endif
     WaitSec( d );
 }
 

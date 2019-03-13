@@ -112,8 +112,9 @@ AD9361_InitParam default_init_param = {
 	2400000000UL,	//rx_synthesizer_frequency_hz *** adi,rx-synthesizer-frequency-hz
 	2400000000UL,	//tx_synthesizer_frequency_hz *** adi,tx-synthesizer-frequency-hz
 */
-	1220000000UL,	//rx_synthesizer_frequency_hz *** adi,rx-synthesizer-frequency-hz
-	1220195000UL,	//tx_synthesizer_frequency_hz *** adi,tx-synthesizer-frequency-hz
+//	1220000000UL,	//rx_synthesizer_frequency_hz *** adi,rx-synthesizer-frequency-hz
+	1220195000UL,	//rx_synthesizer_frequency_hz *** adi,rx-synthesizer-frequency-hz
+    1220000000UL,   //tx_synthesizer_frequency_hz *** adi,tx-synthesizer-frequency-hz
 	/* Rate & BW Control */
 	{983040000, 245760000, 122880000, 61440000, 30720000, 30720000},//uint32_t	rx_path_clock_frequencies[6] *** adi,rx-path-clock-frequencies
 	{983040000, 122880000, 122880000, 61440000, 30720000, 30720000},//uint32_t	tx_path_clock_frequencies[6] *** adi,tx-path-clock-frequencies
@@ -123,14 +124,14 @@ AD9361_InitParam default_init_param = {
 	0,		//rx_rf_port_input_select *** adi,rx-rf-port-input-select
 	0,		//tx_rf_port_input_select *** adi,tx-rf-port-input-select
 	/* TX Attenuation Control */
-	10000,	//tx_attenuation_mdB *** adi,tx-attenuation-mdB
+	20000,	//tx_attenuation_mdB *** adi,tx-attenuation-mdB
 	0,		//update_tx_gain_in_alert_enable *** adi,update-tx-gain-in-alert-enable
 	/* Reference Clock Control */
 	0,		//xo_disable_use_ext_refclk_enable *** adi,xo-disable-use-ext-refclk-enable
 	{8, 5920},	//dcxo_coarse_and_fine_tune[2] *** adi,dcxo-coarse-and-fine-tune
 	CLKOUT_DISABLE,	//clk_output_mode_select *** adi,clk-output-mode-select
 	/* Gain Control */
-	2,		//gc_rx1_mode *** adi,gc-rx1-mode
+	0,		//gc_rx1_mode *** adi,gc-rx1-mode ToDo: Modify again to 2 (Automatic)
 	2,		//gc_rx2_mode *** adi,gc-rx2-mode
 	58,		//gc_adc_large_overload_thresh *** adi,gc-adc-large-overload-thresh
 	4,		//gc_adc_ovr_sample_size *** adi,gc-adc-ovr-sample-size
@@ -809,8 +810,8 @@ int ad9364_Init_EMM(uint32_t dac_data_sel, uint32_t sample_freq_sel, uint32_t FI
 //        ad9361_set_rx_gain_control_mode( ad9361_phy, 0, 0 );
 //        ad9361_set_rx_gain_control_mode( ad9361_phy, 1, 0 );
 
-//        ad9361_set_rx_rf_gain ( ad9361_phy, 0, 20 );
-//        ad9361_set_rx_rf_gain ( ad9361_phy, 1, 20 );
+        ad9361_set_rx_rf_gain ( ad9361_phy, 0, 25 ); //ToDo: Remove this
+        //ad9361_set_rx_rf_gain ( ad9361_phy, 1, 25 );
 
 	}
 	return err;

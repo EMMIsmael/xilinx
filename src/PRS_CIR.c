@@ -848,11 +848,23 @@ static void CalcDelta( PrsCIR *pd )
     u32 fftIdx = FFTIndex( SYSPAR( nFFT) );
     DVCPAR( DeltaF  ) = RowIdx - ( SYS_N_CHAN_PRSCIR - 1 ) / 2;
     double deltaf     = -creal( w1 * conj( z1 ) + w2 * conj( z2 ) ) / ( cabs( z1 ) * cabs( z1 ) + cabs( z2 ) * cabs( z2 ) );
-    DVCPAR( DeltaT  ) = ( pC0 < nFFT / 2 - 1 ? pC0 : pC0 - nFFT );
+    DVCPAR( DeltaT  ) = ( (pC0+1) < nFFT / 2 - 1 ? pC0+1 : pC0 - nFFT+1 );
     double deltat     = -creal( w * conj( z ) ) / ( cabs( z ) * cabs( z ) );
     DVCPAR( deltafp ) = deltaf * DVCPAR( KFF [ fftIdx ] ) + deltat * DVCPAR( KTF [ fftIdx ] );
-    DVCPAR( deltatp ) = deltat * DVCPAR( KTT [ fftIdx ] ) + deltaf * DVCPAR( KFT [ fftIdx ] );
+    //DVCPAR( deltatp ) = deltat * DVCPAR( KTT [ fftIdx ] ) + deltaf * DVCPAR( KFT [ fftIdx ] );
+    double deltatptemp = deltat * DVCPAR( KTT [ fftIdx ] ) + deltaf * DVCPAR( KFT [ fftIdx ] ); //ToDo: Changed 16:22 deltatp
+ cprintf( "%g",   deltatptemp );
+    if (deltatptemp > 0.5) {
+        DVCPAR( deltatp ) = deltatptemp - 1;
+        DVCPAR ( DeltaT ) = DVCPAR ( DeltaT ) + 1;
+    } else if (deltatptemp < -0.5 ){
+        DVCPAR( deltatp ) = deltatptemp + 1;
+        DVCPAR ( DeltaT ) = DVCPAR ( DeltaT ) - 1;
+    } else  {
+        DVCPAR( deltatp ) = deltatptemp;
+    }
 }
+
 
 
 
@@ -904,7 +916,8 @@ static void CorrectRxPRS( PrsCIR *pd )
     //cplx cordeltafp = cexp( I * 2 * M_PI * ( ( double ) DVCPAR( DeltaF ) + DVCPAR( deltafp ) ) / ( double ) ( nFFT ) );
     for ( int j = 0; j < nFFT; j++ )
     {
-          cplx cordeltafp = cexp( I * 2 * M_PI * ( ( double ) DVCPAR( DeltaF ) + DVCPAR( deltafp ) ) * ( double ) ( j + 1 ) / ( double ) ( nFFT ) );
+//VD          cplx cordeltafp = cexp( I * 2 * M_PI * ( ( double ) DVCPAR( DeltaF ) + DVCPAR( deltafp ) ) * ( double ) ( j + 1 ) / ( double ) ( nFFT ) );
+          cplx cordeltafp = cexp( I * 2 * M_PI * ( ( double ) DVCPAR( DeltaF ) + DVCPAR( deltafp ) ) * ( double ) ( ( j + DVCPAR( DeltaT ) ) & idxMask ) / ( double ) ( nFFT ) );
           RxPRSTdCordeltafp [ j ] = RxPRSTdCordeltafp [ j ] * cordeltafp;
 //        for ( int k = j; k < nFFT; k++ )
 //        {
@@ -925,7 +938,7 @@ static void CorrectRxPRS( PrsCIR *pd )
     for ( int i = 0; i < nFFT; i++ )
     {
          TimeCorrSampleIdx [ i ] = ( i < nFFT / 2 ? i : i - nFFT );
-         cplx cordeltatp = cexp( I * 2 * M_PI * ( ( double ) DVCPAR( deltatp ) * ( double ) TimeCorrSampleIdx [ i ] ) / ( double ) ( nFFT ));
+         cplx cordeltatp = cexp( I * 2 * M_PI * ( -( double ) DVCPAR( deltatp ) * ( double ) TimeCorrSampleIdx [ i ] ) / ( double ) ( nFFT )); //ToDo: Sign changed
          RxPRSFdCorFT [ i ]            = RxPRSFdCordeltafp [ i ] * cordeltatp;
          SYSPTR( pRxPRSFdCorFT [ i ] ) = RxPRSFdCorFT [ i ];
     }

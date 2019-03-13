@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Debug_TxRx</name>
+	<name>BER_Data_AGC_PRS_Mod</name>
 	<comment>Created by SDK v2015.4. Debug_TxRx_bsp - ps7_cortexa9_0</comment>
 	<projects>
 		<project>Debug_TxRx_bsp</project>

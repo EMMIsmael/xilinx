@@ -70,6 +70,8 @@ struct sSysPtrs {
 	cplx    *pRxPRSTdCorDeltaT;
 	cplx    *pRxPRSFdCorFT;
     cplx    *pRxPRSTdCorFT;
+    cplx    *pRxDataTdCorFT;
+    cplx    *pRxDataFdCorFT;
 };
 
 
@@ -153,7 +155,7 @@ struct sFFTC {
 //================================
 typedef struct sTREmulDesc TREmulDesc;
 struct sTREmulDesc {
-	u32 *pLUT;
+	u32 *pLUTf;
     u32 PsLUTSize;
     u32 HwLUTSize;
 };
@@ -497,6 +499,11 @@ struct sPrsDesc {
     double alpha;
     double beta;
     double theta0;
+    double lastTheta;
+    double dataAlpha;
+    double dataBeta;
+    double fineDeltaf;
+    double fineDeltat;
     double KFF[ SYS_N_CARRIER_CFG ];
     double KTF[ SYS_N_CARRIER_CFG ];
     double KTT[ SYS_N_CARRIER_CFG ];
@@ -560,16 +567,24 @@ struct sPrsBPAData {
     u32 TxBlockCtr;
 };
 
+typedef struct sprsphi PrsPhi;
+
 typedef struct sPrsBPA PrsBPA;
 struct sPrsBPA {
     SysDvce        *pSysDvce;
     PrsDesc        *pDvcDesc;
     PrsBPAData     *pDvcData;
-    void (* Dump           ) ( PrsBPA *pd );
-    void (* DumpCorr       ) ( PrsBPA *pd );
-    void (* DumpCorrSymbFd ) ( PrsBPA *pd );
-    void (* DumpCorrSymbTd ) ( PrsBPA *pd );
+    void (* Dump           )    ( PrsBPA *pd );
+    void (* DumpCorr       )    ( PrsBPA *pd );
+    void (* DumpCorrSymbFd )    ( PrsBPA *pd );
+    void (* DumpCorrSymbTd )    ( PrsBPA *pd );
+    void (* DumpCorrDataSymbFd) ( PrsBPA *pd );
+    void (* DumpCorrDataSymbTd) ( PrsBPA *pd );
     void (* CalcDeltas     ) ( PrsBPA *pd );
+    void (* RxDataSymbolDumpRawFd     ) ( PrsBPA *pd );
+    void (* RxDataSymbolDumpFCFd     ) ( PrsBPA *pd );
+    void (* RxDataSymbolDumpFTCFd      ) ( PrsBPA *pd );
+    PrsPhi         *pPrsPhi;
 };
 
 
@@ -660,6 +675,8 @@ struct sSysCtrl {
 extern FFTCDesc TxFFTDesc;
 extern FFTCDesc NsdFFTDesc;
 extern FFTCDesc RxFFTDesc;
-extern FFTCDesc PrsFFTDesc;extern FFTCDesc CirFFTDesc;extern FFTCDesc BpaFFTDesc;
+extern FFTCDesc PrsFFTDesc;
+extern FFTCDesc CirFFTDesc;
+extern FFTCDesc BpaFFTDesc;
 
 #endif /* SYSTEMCONTROL_H_ */

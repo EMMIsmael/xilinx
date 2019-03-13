@@ -65,6 +65,10 @@ extern u32 log2u32( u32 );
 extern u32 HammingWeight( u32 w );
 extern u32 HammingDist( u32 w1, u32 w2 );
 
+extern void *memsetd( void *p, double v, u32 n );
+extern void *memsetc( void *p, cplx   v, u32 n );
+
+
 extern double MeanXd    ( double *px, u32 n );
 extern double SigmaXd   ( double *px, u32 n );
 extern double SigmaX2d  ( double *px, u32 n );
@@ -201,6 +205,7 @@ extern NSDet           RxNSDet;
 extern AXISink         RxTddAXISink;
 extern AXISink         RxAsqAXISink;
 extern AXISink         RxPrsAXISink;
+extern AXISink         RxDtaAXISink;
 extern PrsCIR          RxPrsCIR;
 extern PrsBPA          RxPrsBPA;
 

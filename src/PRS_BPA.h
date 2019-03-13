@@ -37,6 +37,22 @@
 
 
 
+typedef struct sprsphi PrsPhi;
+typedef enum eprsphi {
+    PHI_ZERO,
+    PHI_PI_BY_2,
+    PHI_PI,
+    PHI_3_PI_BY_2,
+    PHI_UNDEF
+} PrsPhase;
+
+
+struct sprsphi {
+    _Bool init;
+    u32  phase [ SYS_MAX_CARRIERS ];
+    PrsPhase ( *Phase )      ( PrsBPA * pd, u32 n    );
+    void     ( *Initialise ) ( PrsBPA * pd           );
+};
 
 
 
@@ -46,6 +62,8 @@ struct sLinReg {
     double Alpha;
     double Beta;
 };
+
+
 
 
 #endif /* PRS_BPA_H_ */

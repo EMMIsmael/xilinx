@@ -41,7 +41,9 @@ struct sModem
 	u32              IdxMask;
 	u32              *pConstellation;
 	DmodTFDesc       *pTFDesc;
-	u32              *pLUT;
+	u32              *pLUTf;
+	u32              *pLUTg;
+	u32              *pLUTh;
 	HwModulator      *pHwModulator;
     HwDemodulator    *pHwDemodulator;
 	Cplx32 ( * Modulate       ) ( Modem *pd, u32    data, double sf );
@@ -52,7 +54,9 @@ struct sModem
     void   ( * InitModem ) (
                  Modem          *pd,
                  ModType        ModType,
-                 u32            *pLUT,
+                 u32            *pLUTf,
+                 u32            *pLUTg,
+                 u32            *pLUTh,
                  HwModulator    *pHwModulator,
                  HwDemodulator  *pHwDemodulator,
                  void           (* CalcDmodTF     ) ( Modem *pd, u32 bit ),
